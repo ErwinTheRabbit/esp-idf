@@ -1270,6 +1270,23 @@ static inline bool i2c_cmd_is_single_byte(const i2c_cmd_t *cmd) {
     return cmd->total_bytes == 1;
 }
 
+#define I2C_CMD_FRESP32_UPDATELEN (6)
+
+esp_err_t i2c_master_append_fresp32updatelen(i2c_cmd_handle_t cmd_handle)
+{
+    i2c_cmd_t cmd = {
+        .hw_cmd = {
+            .ack_en = 0,
+            .op_code = I2C_CMD_FRESP32_UPDATELEN,
+        },
+        .data = (uint8_t*) 0,
+        .total_bytes = 99,
+    };
+    return i2c_cmd_link_append(cmd_handle, &cmd);
+}
+
+void IRAM_ATTR i2c_fresp32_updatelen();
+
 static void IRAM_ATTR i2c_master_cmd_begin_static(i2c_port_t i2c_num)
 {
     i2c_obj_t *p_i2c = p_i2c_obj[i2c_num];
@@ -1310,6 +1327,14 @@ static void IRAM_ATTR i2c_master_cmd_begin_static(i2c_port_t i2c_num)
     };
     while (p_i2c->cmd_link.head) {
         i2c_cmd_t *cmd = &p_i2c->cmd_link.head->cmd;
+        
+        
+        if(cmd->hw_cmd.op_code == I2C_CMD_FRESP32_UPDATELEN){
+            i2c_fresp32_updatelen();
+            p_i2c->cmd_link.head = p_i2c->cmd_link.head->next;
+            cmd = &p_i2c->cmd_link.head->cmd;
+        }
+        
         const size_t remaining_bytes = cmd->total_bytes - cmd->bytes_used;
 
         i2c_hw_cmd_t hw_cmd = cmd->hw_cmd;
