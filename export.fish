@@ -11,6 +11,9 @@ function __main
     echo "Detecting the Python interpreter"
     source "$IDF_PATH"/tools/detect_python.fish
 
+    echo "Checking Python compatibility"
+    "$ESP_PYTHON" "$IDF_PATH"/tools/python_version_checker.py
+
     echo "Adding ESP-IDF tools to PATH..."
     # Call idf_tools.py to export tool paths
     set -x IDF_TOOLS_EXPORT_CMD "$IDF_PATH"/export.fish
@@ -19,7 +22,7 @@ function __main
     eval "$idf_exports"
 
     echo "Checking if Python packages are up to date..."
-    python "$IDF_PATH"/tools/check_python_dependencies.py || return 1
+    python "$IDF_PATH"/tools/idf_tools.py check-python-dependencies || return 1
 
     # Allow calling some IDF python tools without specifying the full path
     # "$IDF_PATH"/tools is already added by 'idf_tools.py export'

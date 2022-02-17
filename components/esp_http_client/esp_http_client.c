@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -658,6 +658,10 @@ esp_http_client_handle_t esp_http_client_init(const esp_http_client_config_t *co
     const char *user_agent = config->user_agent == NULL ? DEFAULT_HTTP_USER_AGENT : config->user_agent;
 
     if (config->host != NULL && config->path != NULL) {
+        if (client->connection_info.host == NULL) {
+            ESP_LOGE(TAG, "invalid host");
+            goto error;
+        }
         host_name = _get_host_header(client->connection_info.host, client->connection_info.port);
         if (host_name == NULL) {
             ESP_LOGE(TAG, "Failed to allocate memory for host header");
@@ -675,6 +679,10 @@ esp_http_client_handle_t esp_http_client_init(const esp_http_client_config_t *co
     } else if (config->url != NULL) {
         if (esp_http_client_set_url(client, config->url) != ESP_OK) {
             ESP_LOGE(TAG, "Failed to set URL");
+            goto error;
+        }
+        if (client->connection_info.host == NULL) {
+            ESP_LOGE(TAG, "invalid host");
             goto error;
         }
         host_name = _get_host_header(client->connection_info.host, client->connection_info.port);
@@ -779,7 +787,7 @@ static esp_err_t esp_http_check_response(esp_http_client_handle_t client)
     if (client->response->status_code >= HttpStatus_Ok && client->response->status_code < HttpStatus_MultipleChoices) {
         return ESP_OK;
     }
-    if (client->redirect_counter >= client->max_redirection_count || client->disable_auto_redirect) {
+    if (client->redirect_counter >= client->max_redirection_count) {
         ESP_LOGE(TAG, "Error, reach max_redirection_count count=%d", client->redirect_counter);
         return ESP_ERR_HTTP_MAX_REDIRECT;
     }
@@ -787,6 +795,9 @@ static esp_err_t esp_http_check_response(esp_http_client_handle_t client)
         case HttpStatus_MovedPermanently:
         case HttpStatus_Found:
         case HttpStatus_TemporaryRedirect:
+            if (client->disable_auto_redirect) {
+                http_dispatch_event(client, HTTP_EVENT_REDIRECT, NULL, 0);
+            }
             esp_http_client_set_redirection(client);
             client->redirect_counter ++;
             client->process_again = 1;

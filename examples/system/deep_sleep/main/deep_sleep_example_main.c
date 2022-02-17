@@ -31,7 +31,7 @@
 #include "driver/touch_pad.h"
 #endif
 
-#ifdef CONFIG_IDF_TARGET_ESP32C3
+#if SOC_GPIO_SUPPORT_DEEPSLEEP_WAKEUP
 #define DEFAULT_WAKEUP_PIN      CONFIG_EXAMPLE_GPIO_WAKEUP_PIN
 #ifdef CONFIG_EXAMPLE_GPIO_WAKEUP_HIGH_LEVEL
 #define DEFAULT_WAKEUP_LEVEL    ESP_GPIO_WAKEUP_GPIO_HIGH
@@ -244,7 +244,7 @@ void app_main(void)
     /* Enable touch sensor clock. Work mode is "timer trigger". */
     touch_pad_set_fsm_mode(TOUCH_FSM_MODE_TIMER);
     touch_pad_fsm_start();
-    vTaskDelay(100 / portTICK_RATE_MS);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
 
     /* set touchpad wakeup threshold */
     uint32_t touch_value, wake_threshold;

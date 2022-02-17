@@ -24,7 +24,7 @@
 #include "esp_websocket_client.h"
 #include "esp_event.h"
 
-#define NO_DATA_TIMEOUT_SEC 10
+#define NO_DATA_TIMEOUT_SEC 5
 
 static const char *TAG = "WEBSOCKET";
 
@@ -115,13 +115,13 @@ static void websocket_app_start(void)
     xTimerStart(shutdown_signal_timer, portMAX_DELAY);
     char data[32];
     int i = 0;
-    while (i < 10) {
+    while (i < 5) {
         if (esp_websocket_client_is_connected(client)) {
             int len = sprintf(data, "hello %04d", i++);
             ESP_LOGI(TAG, "Sending %s", data);
             esp_websocket_client_send_text(client, data, len, portMAX_DELAY);
         }
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 
     xSemaphoreTake(shutdown_sema, portMAX_DELAY);

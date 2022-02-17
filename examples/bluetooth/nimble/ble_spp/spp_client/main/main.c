@@ -1,7 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
  *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
 
 #include "esp_log.h"
@@ -339,7 +339,7 @@ void ble_client_uart_task(void *pvParameters)
 	uart_event_t event;
         for (;;) {
             //Waiting for UART event.
-            if (xQueueReceive(spp_common_uart_queue, (void * )&event, (portTickType)portMAX_DELAY)) {
+            if (xQueueReceive(spp_common_uart_queue, (void * )&event, (TickType_t)portMAX_DELAY)) {
              switch (event.type) {
              //Event of UART receving data
              case UART_DATA:

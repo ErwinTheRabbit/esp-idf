@@ -17,6 +17,9 @@ if not "%MISSING_REQUIREMENTS%" == "" goto :__error_missing_requirements
 set IDF_PATH=%~dp0
 set IDF_PATH=%IDF_PATH:~0,-1%
 
+echo Checking Python compatibility
+python.exe "%IDF_PATH%\tools\python_version_checker.py"
+
 set "IDF_TOOLS_PY_PATH=%IDF_PATH%\tools\idf_tools.py"
 set "IDF_TOOLS_JSON_PATH=%IDF_PATH%\tools\tools.json"
 set "IDF_TOOLS_EXPORT_CMD=%IDF_PATH%\export.bat"
@@ -50,7 +53,7 @@ DOSKEY otatool.py=python.exe "%IDF_PATH%\components\app_update\otatool.py" $*
 DOSKEY parttool.py=python.exe "%IDF_PATH%\components\partition_table\parttool.py" $*
 
 echo Checking if Python packages are up to date...
-python.exe "%IDF_PATH%\tools\check_python_dependencies.py"
+python.exe "%IDF_PATH%\tools\idf_tools.py" check-python-dependencies
 if %errorlevel% neq 0 goto :__end
 
 echo.

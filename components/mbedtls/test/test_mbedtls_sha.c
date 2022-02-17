@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -95,7 +95,7 @@ TEST_CASE("mbedtls SHA interleaving", "[mbedtls]")
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(sha1_thousand_as, sha1, 20, "SHA1 calculation");
 }
 
-static xSemaphoreHandle done_sem;
+static SemaphoreHandle_t done_sem;
 static void tskRunSHA1Test(void *pvParameters)
 {
     mbedtls_sha1_context sha1_ctx;
@@ -518,3 +518,25 @@ TEST_CASE("mbedtls SHA256 PSRAM DMA", "[mbedtls]")
 
 }
 #endif //CONFIG_SPIRAM_USE_MALLOC
+
+#if CONFIG_ESP_SYSTEM_RTC_FAST_MEM_AS_HEAP_DEPCHECK
+
+extern RTC_FAST_ATTR uint8_t rtc_stack[4096];
+
+static SemaphoreHandle_t done_sem;
+
+TEST_CASE("mbedtls SHA stack in RTC RAM", "[mbedtls]")
+{
+    done_sem = xSemaphoreCreateBinary();
+    static StaticTask_t rtc_task;
+    memset(rtc_stack, 0, sizeof(rtc_stack));
+
+    TEST_ASSERT(esp_ptr_in_rtc_dram_fast(rtc_stack));
+
+    TEST_ASSERT_NOT_NULL(xTaskCreateStatic(tskRunSHA256Test, "tskRunSHA256Test_task", sizeof(rtc_stack), NULL,
+                                            3, rtc_stack, &rtc_task));
+    TEST_ASSERT_TRUE(xSemaphoreTake(done_sem, 10000 / portTICK_PERIOD_MS));
+    vSemaphoreDelete(done_sem);
+}
+
+#endif //CONFIG_ESP_SYSTEM_RTC_FAST_MEM_AS_HEAP_DEPCHECK

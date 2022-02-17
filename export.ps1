@@ -6,6 +6,9 @@ $IDF_PATH = $PSScriptRoot
 Write-Output "Setting IDF_PATH: $IDF_PATH"
 $env:IDF_PATH = $IDF_PATH
 
+Write-Output "Checking Python compatibility"
+python $IDF_PATH/tools/python_version_checker.py
+
 Write-Output "Adding ESP-IDF tools to PATH..."
 $OLD_PATH = $env:PATH.split($S) | Select-Object -Unique # array without duplicates
 # using idf_tools.py to get $envars_array to set
@@ -69,7 +72,7 @@ if ($dif_Path -ne $null) {
 
 Write-Output "Checking if Python packages are up to date..."
 
-Start-Process -Wait -NoNewWindow -FilePath "python" -Args "`"$IDF_PATH/tools/check_python_dependencies.py`""
+Start-Process -Wait -NoNewWindow -FilePath "python" -Args "`"$IDF_PATH/tools/idf_tools.py`" check-python-dependencies"
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } # if error
 
 Write-Output "

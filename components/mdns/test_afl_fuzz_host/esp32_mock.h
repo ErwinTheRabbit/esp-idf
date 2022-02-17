@@ -1,16 +1,8 @@
-// Copyright 2015-2016 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef _ESP32_COMPAT_H_
 #define _ESP32_COMPAT_H_
 
@@ -20,6 +12,7 @@
 #define _ESP_TASK_H_
 
 #ifdef USE_BSD_STRING
+#include <features.h>
 #include <bsd/string.h>
 #endif
 #include <stdint.h>
@@ -60,7 +53,7 @@
 #define INC_TASK_H
 
 #define pdMS_TO_TICKS(a) a
-#define portTICK_RATE_MS 10
+#define portTICK_PERIOD_MS 10
 #define xSemaphoreTake(s,d)        true
 #define xTaskDelete(a)
 #define vTaskDelete(a)             free(a)
@@ -80,19 +73,16 @@
 #define ESP_TASK_PRIO_MAX 25
 #define ESP_TASKD_EVENT_PRIO 5
 #define _mdns_udp_pcb_write(tcpip_if, ip_protocol, ip, port, data, len) len
-#define xTaskHandle TaskHandle_t
+#define TaskHandle_t TaskHandle_t
 
 
 typedef int32_t esp_err_t;
 
-typedef void * xSemaphoreHandle;
 typedef void * SemaphoreHandle_t;
-typedef void * xQueueHandle;
 typedef void * QueueHandle_t;
 typedef void * TaskHandle_t;
 typedef int    BaseType_t;
 typedef uint32_t TickType_t;
-typedef uint32_t portTickType;
 
 
 extern const char * WIFI_EVENT;
