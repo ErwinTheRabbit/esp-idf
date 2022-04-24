@@ -93,9 +93,7 @@ static const char *TAG = "clk";
     wdt_hal_write_protect_enable(&rtc_wdt_ctx);
 #endif
 
-#if defined(CONFIG_ESP32C2_RTC_CLK_SRC_EXT_CRYS)
-    select_rtc_slow_clk(SLOW_CLK_32K_XTAL);
-#elif defined(CONFIG_ESP32C2_RTC_CLK_SRC_EXT_OSC)
+#if defined(CONFIG_ESP32C2_RTC_CLK_SRC_EXT_OSC)
     select_rtc_slow_clk(SLOW_CLK_32K_EXT_OSC);
 #elif defined(CONFIG_ESP32C2_RTC_CLK_SRC_INT_8MD256)
     select_rtc_slow_clk(SLOW_CLK_8MD256);
@@ -198,37 +196,22 @@ __attribute__((weak)) void esp_perip_clk_init(void)
     uint32_t common_perip_clk, hwcrypto_perip_clk, wifi_bt_sdio_clk = 0;
     uint32_t common_perip_clk1 = 0;
 
-#if CONFIG_FREERTOS_UNICORE
-    soc_reset_reason_t rst_reas[1];
-#else
-    soc_reset_reason_t rst_reas[2];
-#endif
-
-    rst_reas[0] = esp_rom_get_reset_reason(0);
-#if !CONFIG_FREERTOS_UNICORE
-    rst_reas[1] = esp_rom_get_reset_reason(1);
-#endif
+    soc_reset_reason_t rst_reason = esp_rom_get_reset_reason(0);
 
     /* For reason that only reset CPU, do not disable the clocks
      * that have been enabled before reset.
      */
-    /* For reason that only reset CPU, do not disable the clocks
-     * that have been enabled before reset.
-     */
-    if ((rst_reas[0] >= RESET_REASON_CPU0_MWDT0 && rst_reas[0] <= RESET_REASON_CPU0_RTC_WDT && rst_reas[0] != RESET_REASON_SYS_BROWN_OUT)
-#if !CONFIG_FREERTOS_UNICORE
-            || (rst_reas[1] >= RESET_REASON_CPU0_RTC_WDT && rst_reas[1] <= RESET_REASON_CPU0_RTC_WDT)
-#endif
-       ) {
+    if (rst_reason == RESET_REASON_CPU0_MWDT0 || rst_reason == RESET_REASON_CPU0_SW ||
+            rst_reason == RESET_REASON_CPU0_RTC_WDT || rst_reason == RESET_REASON_CPU0_JTAG) {
         common_perip_clk = ~READ_PERI_REG(SYSTEM_PERIP_CLK_EN0_REG);
         hwcrypto_perip_clk = ~READ_PERI_REG(SYSTEM_PERIP_CLK_EN1_REG);
         wifi_bt_sdio_clk = ~READ_PERI_REG(SYSTEM_WIFI_CLK_EN_REG);
     } else {
         common_perip_clk = SYSTEM_SPI2_CLK_EN |
-#if CONFIG_CONSOLE_UART_NUM != 0
+#if CONFIG_ESP_CONSOLE_UART_NUM != 0
                            SYSTEM_UART_CLK_EN |
 #endif
-#if CONFIG_CONSOLE_UART_NUM != 1
+#if CONFIG_ESP_CONSOLE_UART_NUM != 1
                            SYSTEM_UART1_CLK_EN |
 #endif
                            SYSTEM_LEDC_CLK_EN |
@@ -245,10 +228,10 @@ __attribute__((weak)) void esp_perip_clk_init(void)
 
     //Reset the communication peripherals like I2C, SPI, UART and bring them to known state.
     common_perip_clk |= SYSTEM_SPI2_CLK_EN |
-#if CONFIG_CONSOLE_UART_NUM != 0
+#if CONFIG_ESP_CONSOLE_UART_NUM != 0
                         SYSTEM_UART_CLK_EN |
 #endif
-#if CONFIG_CONSOLE_UART_NUM != 1
+#if CONFIG_ESP_CONSOLE_UART_NUM != 1
                         SYSTEM_UART1_CLK_EN |
 #endif
                         SYSTEM_I2C_EXT0_CLK_EN;

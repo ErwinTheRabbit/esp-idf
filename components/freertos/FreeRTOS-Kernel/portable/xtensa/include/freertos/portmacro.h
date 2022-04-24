@@ -71,10 +71,10 @@
 #include <xtensa/hal.h>             /* required for xthal_get_ccount. [refactor-todo] use cpu_hal instead */
 #include <xtensa/xtruntime.h>       /* required for XTOS_SET_INTLEVEL. [refactor-todo] add common intr functions to esp_hw_support */
 #include "xt_instr_macros.h"
-#include "soc/spinlock.h"
+#include "spinlock.h"
 #include "hal/cpu_hal.h"
 #include "esp_private/crosscore_int.h"
-#include "esp_macro.h"
+#include "esp_macros.h"
 #include "esp_attr.h"
 #include "esp_timer.h"              /* required for esp_timer_get_time. [refactor-todo] make this common between archs */
 #include "esp_newlib.h"             /* required for esp_reent_init() in tasks.c */
@@ -359,12 +359,9 @@ void vPortYieldOtherCore(BaseType_t coreid);
  * @return true Core can yield
  * @return false Core cannot yield
  */
-static inline bool IRAM_ATTR xPortCanYield(void);
+static inline bool xPortCanYield(void);
 
 // ------------------- Hook Functions ----------------------
-
-extern void esp_vApplicationIdleHook(void);     /* Required by tasks.c */
-extern void esp_vApplicationTickHook(void);     /* Required by tasks.c */
 
 /**
  * @brief Hook function called on entry to tickless idle
@@ -401,7 +398,7 @@ void vPortSetStackWatchpoint( void *pxStackStart );
  * @note [refactor-todo] IDF should call a FreeRTOS like macro instead of port function directly
  * @return BaseType_t Core ID
  */
-static inline BaseType_t IRAM_ATTR xPortGetCoreID(void);
+static inline BaseType_t xPortGetCoreID(void);
 
 /**
  * @brief Wrapper for atomic compare-and-set instruction
@@ -527,9 +524,9 @@ extern void _frxt_setup_switch( void );     //Defined in portasm.S
  *          might result in undesired behavior
  */
 #if defined(__cplusplus) && (__cplusplus >  201703L)
-#define portYIELD_FROM_ISR(...) CHOOSE_MACRO_VA_ARG(_0 __VA_OPT__(,) ##__VA_ARGS__, portYIELD_FROM_ISR_ARG, portYIELD_FROM_ISR_NO_ARG)(__VA_ARGS__)
+#define portYIELD_FROM_ISR(...) CHOOSE_MACRO_VA_ARG(portYIELD_FROM_ISR_ARG, portYIELD_FROM_ISR_NO_ARG __VA_OPT__(,) __VA_ARGS__)(__VA_ARGS__)
 #else
-#define portYIELD_FROM_ISR(...) CHOOSE_MACRO_VA_ARG(_0, ##__VA_ARGS__, portYIELD_FROM_ISR_ARG, portYIELD_FROM_ISR_NO_ARG)(__VA_ARGS__)
+#define portYIELD_FROM_ISR(...) CHOOSE_MACRO_VA_ARG(portYIELD_FROM_ISR_ARG, portYIELD_FROM_ISR_NO_ARG, ##__VA_ARGS__)(__VA_ARGS__)
 #endif
 
 /* Yielding within an API call (when interrupts are off), means the yield should be delayed
@@ -542,11 +539,6 @@ extern void _frxt_setup_switch( void );     //Defined in portasm.S
 #define portYIELD_WITHIN_API() esp_crosscore_int_send_yield(xPortGetCoreID())
 
 // ------------------- Hook Functions ----------------------
-
-#ifndef CONFIG_FREERTOS_LEGACY_HOOKS
-#define vApplicationIdleHook esp_vApplicationIdleHook
-#define vApplicationTickHook esp_vApplicationTickHook
-#endif /* !CONFIG_FREERTOS_LEGACY_HOOKS */
 
 #define portSUPPRESS_TICKS_AND_SLEEP(idleTime) vApplicationSleep(idleTime)
 
@@ -588,14 +580,14 @@ extern void _frxt_setup_switch( void );     //Defined in portasm.S
 
 // --------------------- Interrupts ------------------------
 
-static inline UBaseType_t xPortSetInterruptMaskFromISR(void)
+static inline UBaseType_t __attribute__((always_inline)) xPortSetInterruptMaskFromISR(void)
 {
     UBaseType_t prev_int_level = XTOS_SET_INTLEVEL(XCHAL_EXCM_LEVEL);
     portbenchmarkINTERRUPT_DISABLE();
     return prev_int_level;
 }
 
-static inline void vPortClearInterruptMaskFromISR(UBaseType_t prev_level)
+static inline void __attribute__((always_inline)) vPortClearInterruptMaskFromISR(UBaseType_t prev_level)
 {
     portbenchmarkINTERRUPT_RESTORE(prev_level);
     XTOS_RESTORE_JUST_INTLEVEL((int) prev_level);
@@ -768,12 +760,6 @@ extern uint32_t port_switch_flag[];
 #else
 #define UNTESTED_FUNCTION()
 #endif
-
-/* ---------------------------------------------------- Deprecate ------------------------------------------------------
- * - Pull in header containing deprecated macros here
- * ------------------------------------------------------------------------------------------------------------------ */
-
-#include "portmacro_deprecated.h"
 
 #ifdef __cplusplus
 }

@@ -35,11 +35,7 @@ static const char *TAG = "clk";
  */
 #define SLOW_CLK_CAL_CYCLES     CONFIG_ESP32S3_RTC_CLK_CAL_CYCLES
 
-#ifdef CONFIG_ESP32S3_RTC_XTAL_CAL_RETRY
-#define RTC_XTAL_CAL_RETRY CONFIG_ESP32S3_RTC_XTAL_CAL_RETRY
-#else
 #define RTC_XTAL_CAL_RETRY 1
-#endif
 
 /* Lower threshold for a reasonably-looking calibration value for a 32k XTAL.
  * The ideal value (assuming 32768 Hz frequency) is 1000000/32768*(2**19) = 16*10^6.
@@ -232,13 +228,13 @@ __attribute__((weak)) void esp_perip_clk_init(void)
     } else {
         common_perip_clk = SYSTEM_WDG_CLK_EN |
                            SYSTEM_I2S0_CLK_EN |
-#if CONFIG_CONSOLE_UART_NUM != 0
+#if CONFIG_ESP_CONSOLE_UART_NUM != 0
                            SYSTEM_UART_CLK_EN |
 #endif
-#if CONFIG_CONSOLE_UART_NUM != 1
+#if CONFIG_ESP_CONSOLE_UART_NUM != 1
                            SYSTEM_UART1_CLK_EN |
 #endif
-#if CONFIG_CONSOLE_UART_NUM != 2
+#if CONFIG_ESP_CONSOLE_UART_NUM != 2
                            SYSTEM_UART2_CLK_EN |
 #endif
                            SYSTEM_USB_CLK_EN |
@@ -272,13 +268,13 @@ __attribute__((weak)) void esp_perip_clk_init(void)
 
     //Reset the communication peripherals like I2C, SPI, UART, I2S and bring them to known state.
     common_perip_clk |= SYSTEM_I2S0_CLK_EN |
-#if CONFIG_CONSOLE_UART_NUM != 0
+#if CONFIG_ESP_CONSOLE_UART_NUM != 0
                         SYSTEM_UART_CLK_EN |
 #endif
-#if CONFIG_CONSOLE_UART_NUM != 1
+#if CONFIG_ESP_CONSOLE_UART_NUM != 1
                         SYSTEM_UART1_CLK_EN |
 #endif
-#if CONFIG_CONSOLE_UART_NUM != 2
+#if CONFIG_ESP_CONSOLE_UART_NUM != 2
                         SYSTEM_UART2_CLK_EN |
 #endif
                         SYSTEM_USB_CLK_EN |

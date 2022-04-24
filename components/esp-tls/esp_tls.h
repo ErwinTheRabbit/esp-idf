@@ -19,7 +19,6 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/error.h"
-#include "mbedtls/certs.h"
 #ifdef CONFIG_ESP_TLS_SERVER_SESSION_TICKETS
 #include "mbedtls/ssl_ticket.h"
 #endif
@@ -251,6 +250,10 @@ typedef struct esp_tls_cfg_server {
 
     unsigned int serverkey_password_len;        /*!< String length of the password pointed to by
                                                      serverkey_password */
+
+    bool use_secure_element;                    /*!< Enable this option to use secure element or
+                                                 atecc608a chip ( Integrated with ESP32-WROOM-32SE ) */
+
 
 #if defined(CONFIG_ESP_TLS_SERVER_SESSION_TICKETS)
     esp_tls_server_session_ticket_ctx_t * ticket_ctx; /*!< Session ticket generation context.

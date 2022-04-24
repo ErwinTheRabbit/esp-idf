@@ -90,7 +90,7 @@ If none of the locks are acquired, and light sleep is enabled in a call to :cpp:
 
 Light sleep duration will be chosen to wake up the chip before the nearest event (task being unblocked, or timer elapses).
 
-To skip unnecessary wake-up you can consider initializing an esp_timer with the `skip_unhandled_events` option as true. Timers with this flag will not wake up the system and it helps to reduce consumption.
+To skip unnecessary wake-up, you can consider initializing an esp_timer with the `skip_unhandled_events` option as true. Timers with this flag will not wake up the system and it helps to reduce consumption.
 
 
 Dynamic Frequency Scaling and Peripheral Drivers
@@ -100,10 +100,11 @@ When DFS is enabled, the APB frequency can be changed multiple times within a si
 
 The following peripherals work normally even when the APB frequency is changing:
 
-- **UART**: if REF_TICK is used as a clock source. See `use_ref_tick` member of :cpp:class:`uart_config_t`.
+- **UART**: if REF_TICK is used as a clock source. See cpp:member:`uart_config_t::use_ref_tick`.
 - **LEDC**: if REF_TICK is used as a clock source. See :cpp:func:`ledc_timer_config` function.
-- **RMT**: if REF_TICK or XTAL is used as a clock source. See `flags` member of :cpp:class:`rmt_config_t` and macro `RMT_CHANNEL_FLAGS_AWARE_DFS`.
-- **GPTimer**: if APB is used as the clock source. See :c:member:`clk_src` member of :c:type:`gptimer_config_t`.
+- **RMT**: if REF_TICK or XTAL is used as a clock source. See :cpp:member:`rmt_config_t::flags` and macro `RMT_CHANNEL_FLAGS_AWARE_DFS`.
+- **GPTimer**: if APB is used as the clock source. See :cpp:member:`gptimer_config_t::clk_src`.
+- **TSENS**: XTAL or RTC_8M is used as a clock source. So, APB frequency changing will not influence it.
 
 Currently, the following peripheral drivers are aware of DFS and will use the ``ESP_PM_APB_FREQ_MAX`` lock for the duration of the transaction:
 
@@ -129,7 +130,7 @@ The following peripheral drivers are not aware of DFS yet. Applications need to 
 
     - PCNT
     - Sigma-delta
-    - The legacy timer group driver (note, the new :doc:`GPTimer <../peripherals/gptimer>` will hold the ``ESP_PM_APB_FREQ_MAX`` lock while the timer is working, if the clock source is set to APB)
+    - The legacy timer group driver
     :SOC_MCPWM_SUPPORTED: - MCPWM
 
 API Reference

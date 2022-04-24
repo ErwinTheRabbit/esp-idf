@@ -72,6 +72,11 @@ Any mirror server can be used provided the URL matches the ``github.com`` downlo
 
   The environment variables can be listed in either of ``shell`` or ``key-value`` formats, set by ``--format`` parameter:
 
+  - ``export`` optional parameters:
+    
+    - ``--unset`` Creates statement that unset some global variables, so the environment gets to the state it was before calling ``export.{sh/fish}``.
+    - ``--add_paths_extras`` Adds extra ESP-IDF-related paths of ``$PATH`` to ``${IDF_TOOLS_PATH}/esp-idf.json``, which is used to remove global variables when the active ESP-IDF environment is deactivated. Example: While processing ``export.{sh/fish}`` script, new paths are added to global variable ``$PATH``. This option is used to save these new paths to the ``${IDF_TOOLS_PATH}/esp-idf.json``.
+
   - ``shell`` produces output suitable for evaluation in the shell. For example,
 
     ::
@@ -108,6 +113,11 @@ Any mirror server can be used provided the URL matches the ``github.com`` downlo
 
 * ``check-python-dependencies``: Checks if all required Python packages are installed. Packages from ``${IDF_PATH}/tools/requirements/requirements.*.txt`` files selected by the feature list of ``idf-env.json`` are checked with the package versions specified in the ``espidf.constraints.*.txt`` file. The constraint file will be downloaded from https://dl.espressif.com if this step hasn't been done already in the last day.
 
+* ``uninstall``: Print and remove tools, that are currently not used by active ESP-IDF version.
+
+  - ``--dry-run`` Print installed unused tools.
+  - ``--remove-archives`` Additionally remove all older versions of previously downloaded installation packages.
+  
 .. _idf-tools-install:
 
 Install scripts

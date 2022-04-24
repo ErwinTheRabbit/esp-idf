@@ -114,7 +114,7 @@ To start synchronization via SNTP, just call the following three functions.
     sntp_setservername(0, "pool.ntp.org");
     sntp_init();
 
-An application with this initialization code will periodically synchronize the time. The time synchronization period is determined by :envvar:`CONFIG_LWIP_SNTP_UPDATE_DELAY` (default value is one hour). To modify the variable, set :ref:`CONFIG_LWIP_SNTP_UPDATE_DELAY` in project configuration.
+An application with this initialization code will periodically synchronize the time. The time synchronization period is determined by :ref:`CONFIG_LWIP_SNTP_UPDATE_DELAY` (default value is one hour). To modify the variable, set :ref:`CONFIG_LWIP_SNTP_UPDATE_DELAY` in project configuration.
 
 A code example that demonstrates the implementation of time synchronization based on the lwIP SNTP library is provided in :example:`protocols/sntp` directory.
 
@@ -135,7 +135,7 @@ Once these steps are completed, call the standard C library function ``localtime
 
 ESP-IDF uses 32-bit ``time_t`` type by default. To address Y2K38 issue, you may need to use 64-bit ``time_t`` type when building the application.
 
-Currently this requires building the cross-compiler toolchain from scratch. See the instructions for building the toolchain in :doc:`/get-started/linux-setup-scratch`. To enable 64-bit ``time_t`` support in the toolchain, you need to remove the ``--enable-newlib-long-time_t`` option from the ``crosstool-NG/samples/xtensa-esp32-elf/crosstool.config`` file before building the toolchain.
+Currently this requires building the cross-compiler toolchain from scratch. See the instructions for building the toolchain in :doc:`/get-started/linux-macos-setup`. To enable 64-bit ``time_t`` support in the toolchain, you need to remove the ``--enable-newlib-long-time_t`` option from the ``crosstool-NG/samples/xtensa-esp32-elf/crosstool.config`` file before building the toolchain.
 
 If you need to make the program compatible with both 32-bit and 64-bit ``time_t``, you may use the following methods:
 

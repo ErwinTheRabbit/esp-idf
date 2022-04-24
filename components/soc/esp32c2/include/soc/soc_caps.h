@@ -33,21 +33,15 @@
 #define SOC_WIFI_SUPPORTED              0 // Enable during bringup, IDF-3905
 #define SOC_ASYNC_MEMCPY_SUPPORTED      1
 #define SOC_SUPPORTS_SECURE_DL_MODE     1
-#define SOC_EFUSE_SECURE_BOOT_KEY_DIGESTS 1
-#define SOC_EFUSE_REVOKE_BOOT_KEY_DIGESTS 0
 #define SOC_EFUSE_KEY_PURPOSE_FIELD     0
 #define SOC_EFUSE_CONSISTS_OF_ONE_KEY_BLOCK 1
 #define SOC_RTC_FAST_MEM_SUPPORTED      0
 #define SOC_RTC_SLOW_MEM_SUPPORTED      0
-#define SOC_SUPPORT_SECURE_BOOT_REVOKE_KEY             0
-#define SOC_ICACHE_ACCESS_RODATA_SUPPORTED 1
-#define SOC_FLASH_ENCRYPTION_XTS_AES    1
 
-/*-------------------------- AES CAPS -----------------------------------------*/
-#define SOC_AES_SUPPORT_DMA     (1)
-
-/* Has a centralized DMA, which is shared with all peripherals */
-#define SOC_AES_GDMA            (1)
+#define SOC_SHA_SUPPORTED               0 // This will be enabled with IDF-3830
+#define SOC_ECC_SUPPORTED               1
+#define SOC_FLASH_ENC_SUPPORTED         1
+#define SOC_SECURE_BOOT_SUPPORTED       1
 
 /*-------------------------- ADC CAPS -------------------------------*/
 /*!< SAR ADC Module*/
@@ -77,6 +71,9 @@
 
 /*-------------------------- BROWNOUT CAPS -----------------------------------*/
 #define SOC_BROWNOUT_RESET_SUPPORTED 1
+
+/*-------------------------- CACHE CAPS --------------------------------------*/
+#define SOC_SHARED_IDCACHE_SUPPORTED            1   //Shared Cache for both instructions and data
 
 /*-------------------------- CPU CAPS ----------------------------------------*/
 #define SOC_CPU_BREAKPOINTS_NUM         2
@@ -116,7 +113,7 @@
 #define SOC_DEDIC_PERIPH_ALWAYS_ENABLE  (1) /*!< The dedicated GPIO (a.k.a. fast GPIO) is featured by some customized CPU instructions, which is always enabled */
 
 /*-------------------------- I2C CAPS ----------------------------------------*/
-// TODO IDF-3918
+// ESP32-C2 has 1 I2C
 #define SOC_I2C_NUM                 (1U)
 
 #define SOC_I2C_FIFO_LEN            (32) /*!< I2C hardware FIFO depth */
@@ -128,10 +125,11 @@
 #define SOC_I2C_SUPPORT_RTC         (1)
 
 /*-------------------------- LEDC CAPS ---------------------------------------*/
-#define SOC_LEDC_SUPPORT_XTAL_CLOCK  (1)
-#define SOC_LEDC_CHANNEL_NUM         (6)
-#define SOC_LEDC_TIMER_BIT_WIDE_NUM  (14)
-#define SOC_LEDC_SUPPORT_FADE_STOP   (1)
+#define SOC_LEDC_SUPPORT_PLL_DIV_CLOCK  (1)
+#define SOC_LEDC_SUPPORT_XTAL_CLOCK     (1)
+#define SOC_LEDC_CHANNEL_NUM            (6)
+#define SOC_LEDC_TIMER_BIT_WIDE_NUM     (14)
+#define SOC_LEDC_SUPPORT_FADE_STOP      (1)
 
 /*-------------------------- MPU CAPS ----------------------------------------*/
 #define SOC_MPU_CONFIGURABLE_REGIONS_SUPPORTED    0
@@ -221,13 +219,20 @@
 #define SOC_TIMER_GROUP_TIMERS_PER_GROUP  (1U)
 #define SOC_TIMER_GROUP_COUNTER_BIT_WIDTH (54)
 #define SOC_TIMER_GROUP_SUPPORT_XTAL      (1)
+#define SOC_TIMER_GROUP_SUPPORT_PLL_F40M  (1)
 #define SOC_TIMER_GROUP_TOTAL_TIMERS      (1U)
 
 /*-------------------------- TOUCH SENSOR CAPS -------------------------------*/
 #define SOC_TOUCH_SENSOR_NUM            (0U)    /*! No touch sensors on ESP32-C2 */
 
+/*-------------------------- Secure Boot CAPS----------------------------*/
+#define SOC_SECURE_BOOT_V2_ECC              1
+#define SOC_EFUSE_SECURE_BOOT_KEY_DIGESTS   1
+
 /*-------------------------- Flash Encryption CAPS----------------------------*/
 #define SOC_FLASH_ENCRYPTED_XTS_AES_BLOCK_MAX   (32)
+#define SOC_FLASH_ENCRYPTION_XTS_AES            1
+#define SOC_FLASH_ENCRYPTION_XTS_AES_128        0        // This will be enabled with IDF-3899
 
 /*-------------------------- UART CAPS ---------------------------------------*/
 // ESP32-C2 has 2 UARTs

@@ -146,13 +146,20 @@ scan_tests:
     - .rules:build:target_test
   image: $TARGET_TEST_ENV_IMAGE
   tags:
-    - assign_test
+    - scan_test  # since this job is used for uploading the cache, the runner tags should be unique
   artifacts:
     paths:
       - $EXAMPLE_TEST_OUTPUT_DIR
       - $TEST_APPS_OUTPUT_DIR
       - $COMPONENT_UT_OUTPUT_DIR
     expire_in: 1 week
+  cache:
+    key: pip-cache
+    paths:
+      - .cache/pip
+    # pull only for most of the use cases since it's cache dir.
+    # Only set "pull-push" policy for "scan_test" since it would **possibly** install all pypi packages
+    policy: pull-push
   variables:
     EXAMPLE_TEST_DIR: ${CI_PROJECT_DIR}/examples
     EXAMPLE_TEST_OUTPUT_DIR: ${CI_PROJECT_DIR}/examples/test_configs

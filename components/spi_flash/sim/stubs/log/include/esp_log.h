@@ -18,9 +18,6 @@
 extern "C" {
 #endif
 
-#define strlcpy(a, b, c)
-#define strlcat(a, b, c)
-
 #define heap_caps_malloc(a, b)  NULL
 #define MALLOC_CAP_INTERNAL     0
 #define MALLOC_CAP_8BIT         0
@@ -61,9 +58,7 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
 
 #define ESP_LOGV( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_VERBOSE) { esp_log_write(ESP_LOG_VERBOSE, tag, LOG_FORMAT(V, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
 
-// Assume that flash encryption is not enabled. Put here since in partition.c
-// esp_log.h is included later than esp_flash_encrypt.h.
-#define esp_flash_encryption_enabled()      false
+#define esp_flash_encryption_enabled() false
 
 #ifdef __cplusplus
 }

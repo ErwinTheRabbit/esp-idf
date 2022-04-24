@@ -37,6 +37,9 @@
 #include "esp_wifi_driver.h"
 #include "esp_private/wifi.h"
 #include "esp_wpa_err.h"
+#ifdef CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
+#include "esp_crt_bundle.h"
+#endif
 
 #define WPA2_VERSION    "v2.0"
 
@@ -64,7 +67,7 @@ static int wpa2_start_eapol_internal(void);
 int wpa2_post(uint32_t sig, uint32_t par);
 
 #ifdef USE_WPA2_TASK
-static void *s_wpa2_task_hdl = NULL;
+static TaskHandle_t s_wpa2_task_hdl = NULL;
 static void *s_wpa2_queue = NULL;
 static wpa2_state_t s_wpa2_state = WPA2_STATE_DISABLED;
 static void *s_wpa2_api_lock = NULL;
@@ -793,7 +796,7 @@ static int eap_peer_sm_init(void)
     gEapSm = sm;
 #ifdef USE_WPA2_TASK
     s_wpa2_queue = xQueueCreate(SIG_WPA2_MAX, sizeof(s_wpa2_queue));
-    ret = xTaskCreate(wpa2_task, "wpa2T", WPA2_TASK_STACK_SIZE, NULL, 2, s_wpa2_task_hdl);
+    ret = xTaskCreate(wpa2_task, "wpa2T", WPA2_TASK_STACK_SIZE, NULL, 2, &s_wpa2_task_hdl);
     if (ret != pdPASS) {
         wpa_printf(MSG_ERROR, "wps enable: failed to create task");
         ret = ESP_FAIL;
@@ -1249,4 +1252,19 @@ esp_err_t esp_wifi_sta_wpa2_ent_set_fast_phase1_params(esp_eap_fast_config confi
     os_memcpy(g_wpa_phase1_options, &config_for_supplicant, sizeof(config_for_supplicant));
     return ESP_OK;
 
+}
+
+esp_err_t esp_wifi_sta_wpa2_use_default_cert_bundle(bool use_default_bundle)
+{
+#ifdef CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
+    g_wpa_default_cert_bundle = use_default_bundle;
+    if (use_default_bundle) {
+        esp_crt_bundle_attach_fn = esp_crt_bundle_attach;
+    } else {
+        esp_crt_bundle_attach_fn = NULL;
+    }
+    return ESP_OK;
+#else
+    return ESP_FAIL;
+#endif
 }

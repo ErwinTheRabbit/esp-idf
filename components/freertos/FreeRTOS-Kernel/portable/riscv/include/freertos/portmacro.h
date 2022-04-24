@@ -42,9 +42,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "soc/spinlock.h"
+#include "spinlock.h"
 #include "soc/interrupt_core0_reg.h"
-#include "esp_macro.h"
+#include "esp_macros.h"
 #include "esp_attr.h"
 #include "esp_rom_sys.h"
 #include "esp_timer.h"              /* required for FreeRTOS run time stats */
@@ -269,12 +269,9 @@ void vPortYieldOtherCore(BaseType_t coreid);
  * @return true Core can yield
  * @return false Core cannot yield
  */
-static inline bool IRAM_ATTR xPortCanYield(void);
+static inline bool xPortCanYield(void);
 
 // ------------------- Hook Functions ----------------------
-
-extern void esp_vApplicationIdleHook(void);
-extern void esp_vApplicationTickHook(void);
 
 /**
  * @brief Hook function called on entry to tickless idle
@@ -394,9 +391,9 @@ static inline BaseType_t IRAM_ATTR xPortGetCoreID(void)
  *          might result in undesired behavior
  */
 #if defined(__cplusplus) && (__cplusplus >  201703L)
-#define portYIELD_FROM_ISR(...) CHOOSE_MACRO_VA_ARG(_0 __VA_OPT__(,) ##__VA_ARGS__, portYIELD_FROM_ISR_ARG, portYIELD_FROM_ISR_NO_ARG)(__VA_ARGS__)
+#define portYIELD_FROM_ISR(...) CHOOSE_MACRO_VA_ARG(portYIELD_FROM_ISR_ARG, portYIELD_FROM_ISR_NO_ARG __VA_OPT__(,) __VA_ARGS__)(__VA_ARGS__)
 #else
-#define portYIELD_FROM_ISR(...) CHOOSE_MACRO_VA_ARG(_0, ##__VA_ARGS__, portYIELD_FROM_ISR_ARG, portYIELD_FROM_ISR_NO_ARG)(__VA_ARGS__)
+#define portYIELD_FROM_ISR(...) CHOOSE_MACRO_VA_ARG(portYIELD_FROM_ISR_ARG, portYIELD_FROM_ISR_NO_ARG, ##__VA_ARGS__)(__VA_ARGS__)
 #endif
 
 
@@ -411,10 +408,6 @@ static inline BaseType_t IRAM_ATTR xPortGetCoreID(void)
 
 // ------------------- Hook Functions ----------------------
 
-#ifndef CONFIG_FREERTOS_LEGACY_HOOKS
-#define vApplicationIdleHook    esp_vApplicationIdleHook
-#define vApplicationTickHook    esp_vApplicationTickHook
-#endif /* !CONFIG_FREERTOS_LEGACY_HOOKS */
 #define portSUPPRESS_TICKS_AND_SLEEP(idleTime) vApplicationSleep(idleTime)
 
 // ------------------- Run Time Stats ----------------------
@@ -514,12 +507,6 @@ extern int xPortSwitchFlag;
 #else
 #define UNTESTED_FUNCTION()
 #endif
-
-/* ---------------------------------------------------- Deprecate ------------------------------------------------------
- * - Pull in header containing deprecated macros here
- * ------------------------------------------------------------------------------------------------------------------ */
-
-#include "portmacro_deprecated.h"
 
 #ifdef __cplusplus
 }
