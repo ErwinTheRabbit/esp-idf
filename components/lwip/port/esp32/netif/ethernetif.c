@@ -52,6 +52,7 @@
 #include "esp_netif.h"
 #include "esp_netif_net_stack.h"
 #include "esp_compiler.h"
+#include "../lwip/esp_netif_lwip_internal.h"
 
 /* Define those to better describe your network interface. */
 #define IFNAME0 'e'
@@ -65,7 +66,11 @@
  */
 static void ethernet_free_rx_buf_l2(struct netif *netif, void *buf)
 {
-    free(buf);
+    esp_netif_t *esp_netif = esp_netif_get_handle_from_netif_impl(netif);
+    if(esp_netif && esp_netif->driver_free_rx_buffer)
+        esp_netif_free_rx_buffer(esp_netif, buf);
+    else
+        free(buf);
 }
 
 /**
